@@ -1,0 +1,22 @@
+{
+  parserClass="com.reviewPlugin.parser.ReviewParser"
+
+  extends="com.intellij.extapi.psi.ASTWrapperPsiElement"
+
+  psiClassPrefix="Review"
+  psiImplClassSuffix="Impl"
+  psiPackage="com.reviewPlugin.psi"
+  psiImplPackage="com.reviewPlugin.psi.impl"
+
+  elementTypeHolderClass="com.reviewPlugin.psi.ReviewTypes"
+  elementTypeClass="com.reviewPlugin.psi.ReviewElementType"
+  tokenTypeClass="com.reviewPlugin.psi.ReviewTokenType"
+
+  psiImplUtilClass="com.reviewPlugin.psi.impl.ReviewPsiImplUtil"
+}
+
+reviewFile ::= item_*
+
+private item_ ::= (property|COMMENT|CRLF)
+
+property ::= (KEY? SEPARATOR VALUE?) | KEY {methods=[getKey getValue]}

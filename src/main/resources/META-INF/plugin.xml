@@ -1,0 +1,27 @@
+<idea-plugin>
+    <id>mongolyy.intellij-language-review</id>
+    <name>Re:View</name>
+    <vendor email="mongolyy@gmail.com" url="">intellij-language-review</vendor>
+
+    <description><![CDATA[
+    Enter short description for your plugin here.<br>
+    <em>most HTML tags may be used</em>
+    ]]></description>
+
+    <idea-version since-build="192.7142.36"/> <!-- 2019.2.4 -->
+    
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.lang</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <fileType name="Re:VIEW file" implementationClass="com.reviewPlugin.ReviewFileType" fieldName="INSTANCE" language="Re:VIEW" extensions="re"/>
+        <lang.parserDefinition language="Re:VIEW" implementationClass="com.reviewPlugin.ReviewParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="Re:VIEW" implementationClass="com.reviewPlugin.ReviewSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="com.reviewPlugin.ReviewColorSettingsPage"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+    </actions>
+</idea-plugin>
