@@ -81,7 +81,7 @@ public class ReviewApplicationSettings implements PersistentStateComponent<Revie
     }
 
     public interface SettingsChangedListener {
-        Topic<SettingsChangedListener> TOPIC = Topic.create("AsciiDocApplicationSettingsChanged", SettingsChangedListener.class);
+        Topic<SettingsChangedListener> TOPIC = Topic.create("ReviewApplicationSettingsChanged", SettingsChangedListener.class);
 
         void onSettingsChange(@NotNull ReviewApplicationSettings settings);
     }

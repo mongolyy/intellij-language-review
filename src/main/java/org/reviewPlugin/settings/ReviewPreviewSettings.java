@@ -65,12 +65,6 @@ public class ReviewPreviewSettings {
     @Attribute("ShowReviewWarningsAndErrorsInEditor")
     private boolean myShowReviewWarningsAndErrorsInEditor = true;
 
-    @Attribute("EnabledKroki")
-    private boolean myEnableKroki = false;
-
-    @Attribute("KrokiUrl")
-    private String myKrokiUrl;
-
     public ReviewPreviewSettings() {
     }
 
@@ -83,9 +77,7 @@ public class ReviewPreviewSettings {
                                    boolean enableInjections,  @Nullable String languageForPassthrough,
                                    @Nullable String disabledInjectionsByLanguage,
                                    boolean showReviewWarningsAndErrorsInEditor,
-                                   boolean inplacePreviewRefresh,
-                                   boolean enableKroki,
-                                   String krokiUrl) {
+                                   boolean inplacePreviewRefresh) {
         mySplitEditorLayout = splitEditorLayout;
         myHtmlPanelProviderInfo = htmlPanelProviderInfo;
         myPreviewTheme = previewTheme;
@@ -97,8 +89,6 @@ public class ReviewPreviewSettings {
         myDisabledInjectionsByLanguage = disabledInjectionsByLanguage;
         myShowReviewWarningsAndErrorsInEditor = showReviewWarningsAndErrorsInEditor;
         myInplacePreviewRefresh = inplacePreviewRefresh;
-        myEnableKroki = enableKroki;
-        myKrokiUrl = krokiUrl;
     }
 
     @NotNull
@@ -145,14 +135,6 @@ public class ReviewPreviewSettings {
 
     public String getDisabledInjectionsByLanguage() {
         return myDisabledInjectionsByLanguage;
-    }
-
-    public boolean isKrokiEnabled() {
-        return myEnableKroki;
-    }
-
-    public String getKrokiUrl() {
-        return myKrokiUrl;
     }
 
     public List<String> getDisabledInjectionsByLanguageAsList() {
@@ -207,12 +189,6 @@ public class ReviewPreviewSettings {
         if (myShowReviewWarningsAndErrorsInEditor != that.myShowReviewWarningsAndErrorsInEditor) {
             return false;
         }
-        if (myEnableKroki != that.myEnableKroki) {
-            return false;
-        }
-        if (!Objects.equals(myKrokiUrl, that.myKrokiUrl)) {
-            return false;
-        }
         return attributes.equals(that.attributes);
     }
 
@@ -229,8 +205,6 @@ public class ReviewPreviewSettings {
         result = 31 * result + Objects.hashCode(myDisabledInjectionsByLanguage);
         result = 31 * result + (myShowReviewWarningsAndErrorsInEditor ? 1 : 0);
         result = 31 * result + (myInplacePreviewRefresh ? 1 : 0);
-        result = 31 * result + (myEnableKroki ? 1 : 0);
-        result = 31 * result + Objects.hashCode(myKrokiUrl);
         return result;
     }
 
@@ -245,5 +219,4 @@ public class ReviewPreviewSettings {
         @NotNull
         ReviewPreviewSettings getReviewPreviewSettings();
     }
-
 }

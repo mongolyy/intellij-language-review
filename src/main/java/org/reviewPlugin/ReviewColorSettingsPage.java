@@ -68,6 +68,6 @@ public class ReviewColorSettingsPage implements ColorSettingsPage {
     @NotNull
     @Override
     public String getDisplayName() {
-        return "Review";
+        return "Re:VIEW";
     }
 }

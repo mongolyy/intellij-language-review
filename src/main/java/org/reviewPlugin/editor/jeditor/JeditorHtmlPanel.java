@@ -12,6 +12,7 @@ import com.intellij.util.ui.UIUtil;
 import org.jetbrains.annotations.NotNull;
 import org.reviewPlugin.editor.ReviewHtmlPanel;
 import org.reviewPlugin.editor.ReviewPreviewEditor;
+import org.reviewPlugin.settings.ReviewApplicationSettings;
 
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
@@ -27,8 +28,6 @@ import java.io.StringReader;
 import static org.reviewPlugin.util.UIUtil.loadStyleSheet;
 
 final class JeditorHtmlPanel extends ReviewHtmlPanel {
-    private static final int FOCUS_ELEMENT_DY = 100;
-
     private Logger log = Logger.getInstance(JeditorHtmlPanel.class);
 
     @NotNull
@@ -37,7 +36,6 @@ final class JeditorHtmlPanel extends ReviewHtmlPanel {
     private final JBScrollPane scrollPane;
     @NotNull
     private String myLastRenderedHtml = "";
-
 
     JeditorHtmlPanel(Document document) {
         jEditorPane = new JEditorPane();
@@ -54,7 +52,7 @@ final class JeditorHtmlPanel extends ReviewHtmlPanel {
         }
         final HTMLEditorKit kit = new ReviewEditorKit(baseDir);
 
-        // Create an AsciiDoc style, based on the default stylesheet supplied by UiUtil.getHTMLEditorKit()
+        // Create an Review style, based on the default stylesheet supplied by UiUtil.getHTMLEditorKit()
         // since it contains fix for incorrect styling of tooltips
         final String cssFile = isDarcula() ? "darcula.css" : "preview.css";
         final StyleSheet customStyle = loadStyleSheet(JeditorHtmlPanel.class.getResource(cssFile));
@@ -62,7 +60,6 @@ final class JeditorHtmlPanel extends ReviewHtmlPanel {
         style.addStyleSheet(customStyle);
         kit.setStyleSheet(style);
 
-        //
         jEditorPane.setEditorKit(kit);
         jEditorPane.setEditable(false);
         // use this to prevent scrolling to the end of the pane on setText()
@@ -70,20 +67,17 @@ final class JeditorHtmlPanel extends ReviewHtmlPanel {
     }
 
     private boolean isDarcula() {
-        // TODO
-/*        final AsciiDocApplicationSettings settings = AsciiDocApplicationSettings.getInstance();
-        switch (settings.getAsciiDocPreviewSettings().getPreviewTheme()) {
+        final ReviewApplicationSettings settings = ReviewApplicationSettings.getInstance();
+        switch (settings.getReviewPreviewSettings().getPreviewTheme()) {
             case INTELLIJ:
                 return UIUtil.isUnderDarcula();
-            case ASCIIDOC:
+            case LIGHT:
                 return false;
             case DARCULA:
                 return true;
             default:
                 return false;
-        }*/
-
-        return false;
+        }
     }
 
     @Override
@@ -103,7 +97,7 @@ final class JeditorHtmlPanel extends ReviewHtmlPanel {
             String message = "Error setting HTML: " + ex.getMessage();
             log.error(message, ex);
             Notification notification = ReviewPreviewEditor.NOTIFICATION_GROUP
-                    .createNotification("Error rendering asciidoctor", message, NotificationType.ERROR, null);
+                    .createNotification("Error rendering reviewConverter", message, NotificationType.ERROR, null);
             // increase event log counter
             notification.setImportant(true);
             Notifications.Bus.notify(notification);

@@ -1,6 +1,7 @@
 package org.reviewPlugin;
 
 import com.intellij.openapi.fileTypes.LanguageFileType;
+import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -9,7 +10,11 @@ import javax.swing.*;
 public class ReviewFileType extends LanguageFileType {
     public static final ReviewFileType INSTANCE = new ReviewFileType();
 
-    public static final String[] DEFAULT_ASSOCIATED_EXTENSIONS = {"re"};
+    @NonNls
+    public static final String DEFAULT_EXTENSION = "re";
+
+    @NonNls
+    public static final String DOT_DEFAULT_EXTENSION = "." + DEFAULT_EXTENSION;
 
     private ReviewFileType() {
         super(ReviewLanguage.INSTANCE);
@@ -30,7 +35,7 @@ public class ReviewFileType extends LanguageFileType {
     @NotNull
     @Override
     public String getDefaultExtension() {
-        return "Re:VIEW";
+        return DEFAULT_EXTENSION;
     }
 
     @Nullable

@@ -29,6 +29,7 @@
         <lang.syntaxHighlighterFactory language="Re:VIEW" implementationClass="org.reviewPlugin.ReviewSyntaxHighlighterFactory"/>
         <colorSettingsPage implementation="org.reviewPlugin.ReviewColorSettingsPage"/>
         <fileEditorProvider implementation="org.reviewPlugin.editor.ReviewSplitEditorProvider"/>
+        <applicationConfigurable id="Setting.Review.Preview" groupId="language" nonDefaultProject="true" bundle="ReviewBundle" key="settings.review.preview.name" instance="org.reviewPlugin.settings.ReviewPreviewConfigurable"/>
         <applicationService serviceImplementation="org.reviewPlugin.settings.ReviewApplicationSettings"/>
     </extensions>
 

@@ -14,15 +14,8 @@ public abstract class ReviewAction extends AnAction {
         PsiFile file = event.getData(LangDataKeys.PSI_FILE);
         boolean enabled = false;
         if (file != null) {
-            if (file.getLanguage() == ReviewLanguage.INSTANCE) {
+            if (file.getLanguage() == ReviewLanguage.INSTANCE || file.getName().endsWith(ReviewFileType.DOT_DEFAULT_EXTENSION)) {
                 enabled = true;
-            } else {
-                for (String ext : ReviewFileType.DEFAULT_ASSOCIATED_EXTENSIONS) {
-                    if (file.getName().endsWith("." + ext)) {
-                        enabled = true;
-                        break;
-                    }
-                }
             }
         }
         event.getPresentation().setEnabledAndVisible(enabled);

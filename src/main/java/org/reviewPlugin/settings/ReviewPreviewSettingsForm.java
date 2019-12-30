@@ -26,7 +26,6 @@ public class ReviewPreviewSettingsForm implements ReviewPreviewSettings.Holder {
     private ComboBox myPreviewProvider;
     private ComboBox myDefaultSplitLayout;
     private ComboBox myPreviewThemeLayout;
-    private ComboBox mySafeModeSetting;
     private JPanel myMainPanel;
     private EnumComboBoxModel<SplitFileEditor.SplitEditorLayout> mySplitLayoutModel;
     private EnumComboBoxModel<ReviewHtmlPanel.PreviewTheme> myPreviewThemeModel;
@@ -45,9 +44,6 @@ public class ReviewPreviewSettingsForm implements ReviewPreviewSettings.Holder {
     private JPanel myDisableLanguageInjection;
     private JBCheckBox myShowReviewWarningsAndErrorsInEditor;
     private JBCheckBox myInplacePreviewRefresh;
-    private JBCheckBox myEnableKroki;
-    private JPanel myKrokiUrlPanel;
-    private JBTextField myKrokiUrl;
     private JBTextField myLanguageForPassthrough;
 
     public JComponent getComponent() {
@@ -93,14 +89,6 @@ public class ReviewPreviewSettingsForm implements ReviewPreviewSettings.Holder {
         attributeTable = new AttributeTable();
         attributesPanel = new JPanel(new BorderLayout());
         attributesPanel.add(attributeTable.getComponent(), BorderLayout.CENTER);
-    }
-
-    private void adjustKrokiOptions() {
-        if (myEnableKroki.isSelected()) {
-            myKrokiUrlPanel.setVisible(true);
-        } else {
-            myKrokiUrlPanel.setVisible(false);
-        }
     }
 
     private void adjustSplitOption() {
@@ -158,19 +146,6 @@ public class ReviewPreviewSettingsForm implements ReviewPreviewSettings.Holder {
         myShowReviewWarningsAndErrorsInEditor.setSelected(settings.isShowReviewWarningsAndErrorsInEditor());
 
         myInplacePreviewRefresh.setSelected(settings.isInplacePreviewRefresh());
-
-        myEnableKroki.setSelected(settings.isKrokiEnabled());
-
-        myKrokiUrl.setText(settings.getKrokiUrl());
-
-        myEnableKroki.addItemListener(e -> {
-            adjustKrokiOptions();
-        });
-
-        adjustKrokiOptions();
-
-        myKrokiUrl.setTextToTriggerEmptyTextStatus("https://kroki.io");
-
     }
 
     @NotNull
@@ -184,11 +159,6 @@ public class ReviewPreviewSettingsForm implements ReviewPreviewSettings.Holder {
                 .filter(a -> a.getKey() != null && a.getValue() != null)
                 .collect(Collectors.toMap(AttributeTableItem::getKey, AttributeTableItem::getValue, (a, b) -> b));
 
-        String krokiUrl = myKrokiUrl.getText();
-        if ("https://kroki.io".equals(krokiUrl)) {
-            krokiUrl = "";
-        }
-
         return new ReviewPreviewSettings(
                 mySplitLayoutModel.getSelectedItem(),
                 myPreviewPanelModel.getSelected(),
@@ -199,8 +169,6 @@ public class ReviewPreviewSettingsForm implements ReviewPreviewSettings.Holder {
                 myLanguageForPassthrough.getText(),
                 myDisabledInjectionsByLanguage.getText(),
                 myShowReviewWarningsAndErrorsInEditor.isSelected(),
-                myInplacePreviewRefresh.isSelected(),
-                myEnableKroki.isSelected(),
-                krokiUrl);
+                myInplacePreviewRefresh.isSelected());
     }
 }

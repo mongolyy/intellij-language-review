@@ -1,8 +1,8 @@
 package org.reviewPlugin.editor;
 
 import com.intellij.openapi.editor.Editor;
-import com.intellij.openapi.editor.event.CaretAdapter;
 import com.intellij.openapi.editor.event.CaretEvent;
+import com.intellij.openapi.editor.event.CaretListener;
 import com.intellij.openapi.fileEditor.TextEditor;
 import com.intellij.pom.Navigatable;
 import org.jetbrains.annotations.NotNull;
@@ -25,7 +25,7 @@ public class ReviewSplitEditor extends SplitFileEditor<TextEditor, ReviewPreview
     @NotNull
     @Override
     public String getName() {
-        return "AsciiDoc split editor";
+        return "Re:VIEW split editor";
     }
 
     @NotNull
@@ -44,7 +44,7 @@ public class ReviewSplitEditor extends SplitFileEditor<TextEditor, ReviewPreview
         getMainEditor().navigateTo(navigatable);
     }
 
-    private static class MyCaretListener extends CaretAdapter {
+    private static class MyCaretListener implements CaretListener {
         @NotNull
         private final ReviewPreviewEditor myPreviewFileEditor;
 

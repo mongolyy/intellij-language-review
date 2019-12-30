@@ -13,10 +13,7 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reviewPlugin.actions.ReviewAction;
-import org.reviewPlugin.converter.Attributes;
-import org.reviewPlugin.converter.AttributesBuilder;
-import org.reviewPlugin.converter.Options;
-import org.reviewPlugin.converter.ReviewConverter;
+import org.reviewPlugin.converter.*;
 import org.reviewPlugin.editor.ReviewPreviewEditor;
 import org.reviewPlugin.log.*;
 import org.reviewPlugin.settings.ReviewApplicationSettings;
@@ -72,31 +69,17 @@ public class Review {
         this.name = name;
     }
 
-    private ReviewConverter initWithExtensions(List<String> extensions, boolean springRestDocs, String format) {
+    private ReviewConverter initWithExtensions(List<String> extensions, String format) {
         synchronized (Review.class) {
-            boolean extensionsEnabled;
             ReviewApplicationSettings reviewApplicationSettings = ReviewApplicationSettings.getInstance();
             if (extensions.size() > 0) {
                 reviewApplicationSettings.setExtensionsPresent(projectBasePath, true);
             }
             String md;
             if (Boolean.TRUE.equals(reviewApplicationSettings.getExtensionsEnabled(projectBasePath))) {
-                extensionsEnabled = true;
                 md = calcMd(projectBasePath, extensions);
             } else {
-                extensionsEnabled = false;
                 md = calcMd(projectBasePath, Collections.emptyList());
-            }
-            if (springRestDocs) {
-                md = md + ".restdoc";
-            }
-            if (format.equals("javafx")) {
-                // special plantuml-png-patch.rb only loaded here
-                md = md + "." + format;
-            }
-            boolean krokiEnabled = ReviewApplicationSettings.getInstance().getReviewPreviewSettings().isKrokiEnabled();
-            if (krokiEnabled) {
-                md = md + ".kroki";
             }
             ReviewConverter reviewConverter = instances.get(md);
             if (reviewConverter == null) {
@@ -104,83 +87,9 @@ public class Review {
                 ByteArrayOutputStream boasErr = new ByteArrayOutputStream();
                 LogHandler logHandler = new IntellijLogHandler("initialize");
                 String oldEncoding = null;
-/*                if (Platform.IS_WINDOWS) {
-          *//* There is an initialization procedure in Ruby.java that will abort
-             when the encoding in file.encoding is not known to JRuby. Therefore default to UTF-8 in this case
-             as a most sensible default. *//*
-                    String encoding = System.getProperty("file.encoding", "UTF-8");
-                    ByteList bytes = ByteList.create(encoding);
-                    EncodingDB.Entry entry = EncodingDB.getEncodings().get(bytes.getUnsafeBytes(), bytes.getBegin(), bytes.getBegin() + bytes.getRealSize());
-                    if (entry == null) {
-                        entry = EncodingDB.getAliases().get(bytes.getUnsafeBytes(), bytes.getBegin(), bytes.getBegin() + bytes.getRealSize());
-                    }
-                    if (entry == null) {
-                        // this happes for example with -Dfile.encoding=MS949 (Korean?)
-                        oldEncoding = encoding;
-                        log.warn("unsupported encoding " + encoding + " in JRuby, defaulting to UTF-8");
-                        System.setProperty("file.encoding", "UTF-8");
-                    }
-                }*/
                 try {
                     reviewConverter = ReviewConverter.Factory.create();
                     reviewConverter.registerLogHandler(logHandler);
-                    // require openssl library here to enable download content via https
-                    // requiring it later after other libraries have been loaded results in "undefined method `set_params' for #<OpenSSL::SSL::SSLContext"
-                    // reviewConverter.requireLibrary("openssl");
-                    // TODO
-                    // reviewConverter.javaExtensionRegistry().preprocessor(prependConfig);
-                    // disable JUL logging of captured messages
-                    // https://github.com/Review/Reviewj/issues/669
-                    // Logger.getLogger("Review").setUseParentHandlers(false);
-
-                    if (!krokiEnabled) {
-                        //reviewConverter.requireLibrary("Review-diagram");
-                    }
-
-                    /*try (InputStream is = this.getClass().getResourceAsStream("/sourceline-treeprocessor.rb")) {
-                        if (is == null) {
-                            throw new RuntimeException("unable to load script sourceline-treeprocessor.rb");
-                        }
-                        // TODO
-                        // reviewConverter.rubyExtensionRegistry().loadClass(is).treeprocessor("SourceLineTreeProcessor");
-                    }*/
-
-                    /*if (format.equals("javafx")) {
-                        try (InputStream is = this.getClass().getResourceAsStream("/plantuml-png-patch.rb")) {
-                            if (is == null) {
-                                throw new RuntimeException("unable to load script plantuml-png-patch.rb");
-                            }
-                            // TODO
-                            // Review.rubyExtensionRegistry().loadClass(is);
-                        }
-                    }
-*/
-/*                    if (springRestDocs) {
-                        try (InputStream is = this.getClass().getResourceAsStream("/springrestdoc-operation-blockmacro.rb")) {
-                            if (is == null) {
-                                throw new RuntimeException("unable to load script springrestdoc-operation-blockmacro.rb");
-                            }
-                            // TODO
-                            // Review.rubyExtensionRegistry().loadClass(is);
-                        }
-                    }
-
-                    if (krokiEnabled) {
-                        try (InputStream is = this.getClass().getResourceAsStream("/kroki-extension.rb")) {
-                            if (is == null) {
-                                throw new RuntimeException("unable to load script kroki-extension.rb");
-                            }
-                            // TODO
-                            // Review.rubyExtensionRegistry().loadClass(is);
-                        }
-                    }
-
-                    if (extensionsEnabled) {
-                        for (String extension : extensions) {
-                            // TODO
-                            // Review.rubyExtensionRegistry().requireLibrary(extension);
-                        }
-                    }*/
                     instances.put(md, reviewConverter);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
@@ -393,10 +302,6 @@ public class Review {
             Thread.currentThread().setContextClassLoader(ReviewAction.class.getClassLoader());
             ByteArrayOutputStream boasOut = new ByteArrayOutputStream();
             ByteArrayOutputStream boasErr = new ByteArrayOutputStream();
-            VirtualFile springRestDocsSnippets = findSpringRestDocSnippets(
-                    LocalFileSystem.getInstance().findFileByIoFile(new File(projectBasePath)),
-                    LocalFileSystem.getInstance().findFileByIoFile(fileBaseDir)
-            );
             VirtualFile antoraPartials = findAntoraPartials(
                     LocalFileSystem.getInstance().findFileByIoFile(new File(projectBasePath)),
                     LocalFileSystem.getInstance().findFileByIoFile(fileBaseDir)
@@ -414,11 +319,11 @@ public class Review {
                     LocalFileSystem.getInstance().findFileByIoFile(fileBaseDir)
             );
             try {
-                ReviewConverter reviewConverter = initWithExtensions(extensions, springRestDocsSnippets != null, format);
+                ReviewConverter reviewConverter = initWithExtensions(extensions, format);
                 reviewConverter.registerLogHandler(logHandler);
                 // prependConfig.setConfig(config);
                 try {
-                    return "<div id=\"content\">\n" + reviewConverter.convert(text, getDefaultOptions("html5", springRestDocsSnippets, antoraPartials, antoraImagesDir, antoraAttachmentsDir, antoraExamplesDir)) + "\n</div>";
+                    return "<div id=\"content\">\n" + reviewConverter.convert(text, getDefaultOptions("html5", antoraPartials, antoraImagesDir, antoraAttachmentsDir, antoraExamplesDir)) + "\n</div>";
                 } finally {
                     // prependConfig.setConfig("");
                     reviewConverter.unregisterLogHandler(logHandler);
@@ -462,7 +367,7 @@ public class Review {
                     LocalFileSystem.getInstance().findFileByIoFile(new File(projectBasePath)),
                     LocalFileSystem.getInstance().findFileByIoFile(fileBaseDir));
             try {
-                ReviewConverter reviewConverter = initWithExtensions(extensions, springRestDocsSnippets != null, format.toString());
+                ReviewConverter reviewConverter = initWithExtensions(extensions, format.toString());
                 // prependConfig.setConfig(config);
                 reviewConverter.registerLogHandler(logHandler);
             } catch (Exception | ServiceConfigurationError ex) {
@@ -502,7 +407,7 @@ public class Review {
         return options;
     }
 
-    private Map<String, Object> getDefaultOptions(String backend, VirtualFile springRestDocsSnippets, VirtualFile antoraPartials, String antoraImagesDir, String antoraAttachmentsDir, VirtualFile antoraExamplesDir) {
+    private Map<String, Object> getDefaultOptions(String backend, VirtualFile antoraPartials, String antoraImagesDir, String antoraAttachmentsDir, VirtualFile antoraExamplesDir) {
         AttributesBuilder builder = AttributesBuilder.attributes()
                 .showTitle(true)
                 .backend(backend)
@@ -510,10 +415,6 @@ public class Review {
                 .attribute("coderay-css", "style")
                 .attribute("env", "idea")
                 .attribute("env-idea");
-
-        if (springRestDocsSnippets != null) {
-            builder.attribute("snippets", springRestDocsSnippets.getCanonicalPath());
-        }
 
         String graphvizDot = System.getenv("GRAPHVIZ_DOT");
         if (graphvizDot != null) {
@@ -529,25 +430,15 @@ public class Review {
             }*/
         }
 
-/*        if (ReviewApplicationSettings.getInstance().getReviewPreviewSettings().isKrokiEnabled()) {
-            String krokiUrl = ReviewApplicationSettings.getInstance().getReviewPreviewSettings().getKrokiUrl();
-            if (!StringUtils.isEmpty(krokiUrl)) {
-                attrs.setAttribute("kroki-server-url", krokiUrl);
-            }
-        }*/
-
         settings.getReviewPreviewSettings().getAttributes().forEach(attrs::setAttribute);
 
-/*
-        OptionsBuilder opts = OptionsBuilder.options().safe(settings.getSafe()).backend(backend).headerFooter(false)
+
+        OptionsBuilder opts = OptionsBuilder.options().backend(backend).headerFooter(false)
                 .attributes(attrs)
                 .option("sourcemap", "true")
                 .baseDir(fileBaseDir);
-*/
 
-        Map<String, Object> opts = new HashMap<>();
-
-        return opts;
+        return opts.asMap();
     }
 
     public enum FileType {

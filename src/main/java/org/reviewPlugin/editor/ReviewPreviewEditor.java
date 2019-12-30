@@ -3,11 +3,7 @@ package org.reviewPlugin.editor;
 import com.intellij.codeHighlighting.BackgroundEditorHighlighter;
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer;
 import com.intellij.ide.structureView.StructureViewBuilder;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationDisplayType;
-import com.intellij.notification.NotificationGroup;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
+import com.intellij.notification.*;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.diagnostic.Logger;
@@ -18,11 +14,7 @@ import com.intellij.openapi.editor.colors.EditorColorsManager;
 import com.intellij.openapi.editor.colors.EditorColorsScheme;
 import com.intellij.openapi.editor.event.DocumentAdapter;
 import com.intellij.openapi.editor.event.DocumentEvent;
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorLocation;
-import com.intellij.openapi.fileEditor.FileEditorState;
-import com.intellij.openapi.fileEditor.FileEditorStateLevel;
+import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.util.Disposer;
 import com.intellij.openapi.util.UserDataHolderBase;
@@ -163,21 +155,7 @@ public class ReviewPreviewEditor extends UserDataHolderBase implements FileEdito
                     settings.getReviewPreviewSettings().getLanguageForPassthrough(),
                     settings.getReviewPreviewSettings().getDisabledInjectionsByLanguage(),
                     settings.getReviewPreviewSettings().isShowReviewWarningsAndErrorsInEditor(),
-                    settings.getReviewPreviewSettings().isInplacePreviewRefresh(),
-                    settings.getReviewPreviewSettings().isKrokiEnabled(),
-                    settings.getReviewPreviewSettings().getKrokiUrl()));
-
-      /* the following will not work, IntellIJ will show the error "parent must be showing" when this is
-         tiggered during startup. */
-      /*
-      Messages.showMessageDialog(
-          myHtmlPanelWrapper,
-          "Tried to use preview panel provider (" + providerInfo.getName() + "), but it is unavailable. Reverting to default.",
-          CommonBundle.getErrorTitle(),
-          Messages.getErrorIcon()
-      );
-      */
-
+                    settings.getReviewPreviewSettings().isInplacePreviewRefresh()));
             provider = ReviewHtmlPanelProvider.getProviders()[0];
         }
 
