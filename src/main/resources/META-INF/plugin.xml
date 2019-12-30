@@ -14,11 +14,22 @@
          on how to target different products -->
     <depends>com.intellij.modules.lang</depends>
 
+    <extensionPoints>
+        <extensionPoint qualifiedName="org.reviewPlugin.html.panel.provider"
+                        interface="org.reviewPlugin.editor.ReviewHtmlPanelProvider"/>
+    </extensionPoints>
+
+    <extensions defaultExtensionNs="org.reviewPlugin">
+        <html.panel.provider implementation="org.reviewPlugin.editor.jeditor.JeditorHtmlPanelProvider"/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.intellij">
-        <fileType name="Re:VIEW file" implementationClass="com.reviewPlugin.ReviewFileType" fieldName="INSTANCE" language="Re:VIEW" extensions="re"/>
-        <lang.parserDefinition language="Re:VIEW" implementationClass="com.reviewPlugin.ReviewParserDefinition"/>
-        <lang.syntaxHighlighterFactory language="Re:VIEW" implementationClass="com.reviewPlugin.ReviewSyntaxHighlighterFactory"/>
-        <colorSettingsPage implementation="com.reviewPlugin.ReviewColorSettingsPage"/>
+        <fileType name="Re:VIEW file" implementationClass="org.reviewPlugin.ReviewFileType" fieldName="INSTANCE" language="Re:VIEW" extensions="re"/>
+        <lang.parserDefinition language="Re:VIEW" implementationClass="org.reviewPlugin.ReviewParserDefinition"/>
+        <lang.syntaxHighlighterFactory language="Re:VIEW" implementationClass="org.reviewPlugin.ReviewSyntaxHighlighterFactory"/>
+        <colorSettingsPage implementation="org.reviewPlugin.ReviewColorSettingsPage"/>
+        <fileEditorProvider implementation="org.reviewPlugin.editor.ReviewSplitEditorProvider"/>
+        <applicationService serviceImplementation="org.reviewPlugin.settings.ReviewApplicationSettings"/>
     </extensions>
 
     <actions>
