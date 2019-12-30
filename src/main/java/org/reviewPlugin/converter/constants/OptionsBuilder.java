@@ -1,4 +1,4 @@
-package org.reviewPlugin.converter;
+package org.reviewPlugin.converter.constants;
 
 import java.io.File;
 import java.io.OutputStream;

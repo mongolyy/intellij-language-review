@@ -1,11 +1,10 @@
 package org.reviewPlugin.converter.impl;
 
-import org.reviewPlugin.converter.Options;
-import org.reviewPlugin.converter.OptionsBuilder;
+import org.reviewPlugin.converter.constants.Options;
+import org.reviewPlugin.converter.constants.OptionsBuilder;
 import org.reviewPlugin.converter.ReviewConverter;
 import org.reviewPlugin.converter.ast.Document;
 import org.reviewPlugin.converter.ast.DocumentHeader;
-import org.reviewPlugin.converter.extension.ExtensionGroup;
 import org.reviewPlugin.log.LogHandler;
 
 import java.io.File;
@@ -18,7 +17,8 @@ import java.util.Map;
 public class ReviewConverterImpl implements ReviewConverter {
     @Override
     public String convert(String content, Map<String, Object> options) {
-        return content;
+        String htmlContent = content.replaceAll("\r\n", "<br>").replaceAll("\r", "<br>").replaceAll("\n", "<br>");
+        return htmlContent;
     }
 
     @Override
@@ -28,7 +28,8 @@ public class ReviewConverterImpl implements ReviewConverter {
 
     @Override
     public String convert(String content, Options options) {
-        return content;
+        String htmlContent = content.replaceAll("\r\n", "<br>").replaceAll("\r", "<br>").replaceAll("\n", "<br>");
+        return htmlContent;
     }
 
     @Override
@@ -143,16 +144,6 @@ public class ReviewConverterImpl implements ReviewConverter {
 
     @Override
     public DocumentHeader readDocumentHeader(Reader contentReader) {
-        return null;
-    }
-
-    @Override
-    public ExtensionGroup createGroup() {
-        return null;
-    }
-
-    @Override
-    public ExtensionGroup createGroup(String groupName) {
         return null;
     }
 

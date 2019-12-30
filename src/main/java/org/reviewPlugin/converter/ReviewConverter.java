@@ -2,7 +2,8 @@ package org.reviewPlugin.converter;
 
 import org.reviewPlugin.converter.ast.Document;
 import org.reviewPlugin.converter.ast.DocumentHeader;
-import org.reviewPlugin.converter.extension.ExtensionGroup;
+import org.reviewPlugin.converter.constants.Options;
+import org.reviewPlugin.converter.constants.OptionsBuilder;
 import org.reviewPlugin.log.LogHandler;
 
 import java.io.File;
@@ -98,7 +99,7 @@ public interface ReviewConverter extends AutoCloseable {
      * Parse the document read from reader, and rendered result is sent to
      * writer.
      *
-     * @param contentReader  where asciidoc content is read.
+     * @param contentReader  where review content is read.
      * @param rendererWriter where rendered content is written. Writer is flushed, but not
      *                       closed.
      * @param options        a Hash of options to control processing (default: {}).
@@ -112,7 +113,7 @@ public interface ReviewConverter extends AutoCloseable {
      * Parse the document read from reader, and rendered result is sent to
      * writer.
      *
-     * @param contentReader  where asciidoc content is read.
+     * @param contentReader  where review content is read.
      * @param rendererWriter where rendered content is written. Writer is flushed, but not
      *                       closed.
      * @param options        a Hash of options to control processing (default: {}).
@@ -125,7 +126,7 @@ public interface ReviewConverter extends AutoCloseable {
      * Parse the document read from reader, and rendered result is sent to
      * writer.
      *
-     * @param contentReader  where asciidoc content is read.
+     * @param contentReader  where review content is read.
      * @param rendererWriter where rendered content is written. Writer is flushed, but not
      *                       closed.
      * @param options        a Hash of options to control processing (default: {}).
@@ -379,7 +380,7 @@ public interface ReviewConverter extends AutoCloseable {
     /**
      * Reads only header parameters instead of all document.
      *
-     * @param contentReader where asciidoc content is read.
+     * @param contentReader where review content is read.
      * @return header.
      */
     DocumentHeader readDocumentHeader(Reader contentReader);
@@ -413,20 +414,6 @@ public interface ReviewConverter extends AutoCloseable {
      * @return Converter Registry object.
      */
     // SyntaxHighlighterRegistry syntaxHighlighterRegistry();
-
-    /**
-     * Creates an ExtensionGroup that can be used to register and unregister a group of extensions.
-     *
-     * @return
-     */
-    ExtensionGroup createGroup();
-
-    /**
-     * Creates an ExtensionGroup that can be used to register and unregister a group of extensions.
-     *
-     * @return
-     */
-    ExtensionGroup createGroup(String groupName);
 
     /**
      * Unregister all registered extensions.

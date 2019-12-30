@@ -14,6 +14,10 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reviewPlugin.actions.ReviewAction;
 import org.reviewPlugin.converter.*;
+import org.reviewPlugin.converter.constants.Attributes;
+import org.reviewPlugin.converter.constants.AttributesBuilder;
+import org.reviewPlugin.converter.constants.Options;
+import org.reviewPlugin.converter.constants.OptionsBuilder;
 import org.reviewPlugin.editor.ReviewPreviewEditor;
 import org.reviewPlugin.log.*;
 import org.reviewPlugin.settings.ReviewApplicationSettings;
@@ -27,7 +31,6 @@ import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.*;
-import java.util.logging.Logger;
 
 import static org.reviewPlugin.ReviewUtil.*;
 

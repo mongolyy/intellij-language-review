@@ -1,4 +1,4 @@
-package org.reviewPlugin.converter;
+package org.reviewPlugin.converter.constants;
 
 import java.net.URI;
 import java.text.Format;
