@@ -114,46 +114,4 @@ public class ReviewUtil {
         }
         return null;
     }
-
-    public static VirtualFile findSpringRestDocSnippets(VirtualFile projectBasePath, VirtualFile fileBaseDir) {
-        VirtualFile dir = fileBaseDir;
-        while (dir != null) {
-            VirtualFile pom = dir.findChild("pom.xml");
-            if (pom != null) {
-                VirtualFile targetDir = dir.findChild("target");
-                if (targetDir != null) {
-                    VirtualFile snippets = targetDir.findChild("generated-snippets");
-                    if (snippets != null) {
-                        return snippets;
-                    }
-                }
-            }
-            VirtualFile buildGradle = dir.findChild("build.gradle");
-            if (buildGradle != null) {
-                VirtualFile buildDir = dir.findChild("build");
-                if (buildDir != null) {
-                    VirtualFile snippets = buildDir.findChild("generated-snippets");
-                    if (snippets != null) {
-                        return snippets;
-                    }
-                }
-            }
-            VirtualFile buildGradleKts = dir.findChild("build.gradle.kts");
-            if (buildGradleKts != null) {
-                VirtualFile buildDir = dir.findChild("build");
-                if (buildDir != null) {
-                    VirtualFile snippets = buildDir.findChild("generated-snippets");
-                    if (snippets != null) {
-                        return snippets;
-                    }
-                }
-            }
-            if (projectBasePath.equals(dir)) {
-                break;
-            }
-            dir = dir.getParent();
-        }
-
-        return null;
-    }
 }

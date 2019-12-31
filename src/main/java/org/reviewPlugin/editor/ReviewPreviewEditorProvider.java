@@ -1,16 +1,12 @@
 package org.reviewPlugin.editor;
 
-import com.intellij.openapi.fileEditor.FileDocumentManager;
-import com.intellij.openapi.fileEditor.FileEditor;
-import com.intellij.openapi.fileEditor.FileEditorPolicy;
-import com.intellij.openapi.fileEditor.FileEditorProvider;
-import com.intellij.openapi.fileEditor.FileEditorState;
+import com.intellij.openapi.fileEditor.*;
 import com.intellij.openapi.project.PossiblyDumbAware;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.vfs.VirtualFile;
-import org.reviewPlugin.ReviewLanguage;
 import org.jdom.Element;
 import org.jetbrains.annotations.NotNull;
+import org.reviewPlugin.ReviewLanguage;
 
 public class ReviewPreviewEditorProvider implements FileEditorProvider, PossiblyDumbAware {
     public static final String EDITOR_TYPE_ID = ReviewLanguage.LANGUAGE_NAME + "PreviewEditor";

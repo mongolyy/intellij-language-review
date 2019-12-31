@@ -1,11 +1,7 @@
 package org.reviewPlugin.log;
 
-import org.reviewPlugin.converter.ast.Cursor;
-
 public class LogRecord {
     private final Severity severity;
-
-    private Cursor cursor;
 
     private final String message;
 
@@ -18,32 +14,11 @@ public class LogRecord {
         this.message = message;
     }
 
-    public LogRecord(Severity severity, Cursor cursor, String message) {
-        this.severity = severity;
-        this.cursor = cursor;
-        this.message = message;
-    }
-
-    public LogRecord(Severity severity, Cursor cursor, String message, String sourceFileName, String sourceMethodName) {
-        this.severity = severity;
-        this.cursor = cursor;
-        this.message = message;
-        this.sourceFileName = sourceFileName;
-        this.sourceMethodName = sourceMethodName;
-    }
-
     /**
      * @return Severity level of the current record.
      */
     public Severity getSeverity() {
         return severity;
-    }
-
-    /**
-     * @return Information about the location of the event
-     */
-    public Cursor getCursor() {
-        return cursor;
     }
 
     /**
@@ -54,7 +29,7 @@ public class LogRecord {
     }
 
     /**
-     * @return The value <code>&lt;script&gt;</code>. For the source filename use {@link Cursor#getFile()} obtained with the {@link #getCursor()} method.
+     * @return The value <code>&lt;script&gt;</code>. For the source filename use obtained with the method.
      */
     public String getSourceFileName() {
         return sourceFileName;

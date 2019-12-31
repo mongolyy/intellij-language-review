@@ -15,7 +15,7 @@ public class IntellijLogHandler implements LogHandler {
 
     @Override
     public void log(LogRecord logRecord) {
-        String file = logRecord.getCursor().getFile();
+        String file = logRecord.getSourceFileName();
         if (file == null) {
             file = rootFile;
         }

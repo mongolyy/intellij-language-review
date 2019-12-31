@@ -39,7 +39,6 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.FutureTask;
 
@@ -105,13 +104,12 @@ public class ReviewPreviewEditor extends UserDataHolderBase implements FileEdito
     private void render() {
         final String config = Review.config(document, project);
         final String content = document.getText();
-        List<String> extensions = Review.getExtensions(project);
 
         lazyExecutor.execute(() -> {
             try {
                 if (!(config + content).equals(currentContent)) {
                     currentContent = config + content;
-                    String markup = review.get().render(content, config, extensions);
+                    String markup = review.get().render(content, config);
                     if (markup != null) {
                         myPanel.setHtml(markup);
                     }

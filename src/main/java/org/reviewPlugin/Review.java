@@ -13,16 +13,18 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.reviewPlugin.actions.ReviewAction;
-import org.reviewPlugin.converter.*;
+import org.reviewPlugin.converter.ReviewConverter;
 import org.reviewPlugin.converter.constants.Attributes;
 import org.reviewPlugin.converter.constants.AttributesBuilder;
-import org.reviewPlugin.converter.constants.Options;
 import org.reviewPlugin.converter.constants.OptionsBuilder;
 import org.reviewPlugin.editor.ReviewPreviewEditor;
 import org.reviewPlugin.log.*;
 import org.reviewPlugin.settings.ReviewApplicationSettings;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.FileSystems;
@@ -72,18 +74,10 @@ public class Review {
         this.name = name;
     }
 
-    private ReviewConverter initWithExtensions(List<String> extensions, String format) {
+    private ReviewConverter initWithExtensions(String format) {
         synchronized (Review.class) {
-            ReviewApplicationSettings reviewApplicationSettings = ReviewApplicationSettings.getInstance();
-            if (extensions.size() > 0) {
-                reviewApplicationSettings.setExtensionsPresent(projectBasePath, true);
-            }
             String md;
-            if (Boolean.TRUE.equals(reviewApplicationSettings.getExtensionsEnabled(projectBasePath))) {
-                md = calcMd(projectBasePath, extensions);
-            } else {
-                md = calcMd(projectBasePath, Collections.emptyList());
-            }
+            md = calcMd(projectBasePath, Collections.emptyList());
             ReviewConverter reviewConverter = instances.get(md);
             if (reviewConverter == null) {
                 ByteArrayOutputStream boasOut = new ByteArrayOutputStream();
@@ -185,9 +179,6 @@ public class Review {
                 }
                 StringBuilder message = new StringBuilder();
                 message.append("Error during rendering ").append(name).append("; ").append(logRecord.getSeverity().name()).append(" ");
-                if (logRecord.getCursor() != null && logRecord.getCursor().getFile() != null) {
-                    message.append(logRecord.getCursor().getFile()).append(":").append(logRecord.getCursor().getLineNumber());
-                }
                 message.append(" ").append(logRecord.getMessage());
                 Notification notification = ReviewPreviewEditor.NOTIFICATION_GROUP.createNotification("Message during rendering " + name,
                         message.toString(), NotificationType.INFORMATION, null);
@@ -260,45 +251,24 @@ public class Review {
         return tempContent.toString();
     }
 
-    @NotNull
-    public static List<String> getExtensions(Project project) {
-        VirtualFile lib = project.getBaseDir().findChild(".Review");
-        if (lib != null) {
-            lib = lib.findChild("lib");
-        }
-
-        List<String> extensions = new ArrayList<>();
-        if (lib != null) {
-            for (VirtualFile vf : lib.getChildren()) {
-                if ("rb".equals(vf.getExtension())) {
-                    Document extension = FileDocumentManager.getInstance().getDocument(vf);
-                    if (extension != null) {
-                        extensions.add(vf.getCanonicalPath());
-                    }
-                }
-            }
-        }
-        return extensions;
-    }
-
     @FunctionalInterface
     public interface Notifier {
         void notify(ByteArrayOutputStream boasOut, ByteArrayOutputStream boasErr, List<LogRecord> logRecords);
     }
 
-    public String render(String text, List<String> extensions) {
-        return render(text, "", extensions, this::notify);
+    public String render(String text) {
+        return render(text, "", this::notify);
     }
 
-    public String render(String text, String config, List<String> extensions) {
-        return render(text, config, extensions, this::notify);
+    public String render(String text, String config) {
+        return render(text, config, this::notify);
     }
 
-    public String render(String text, String config, List<String> extensions, Notifier notifier) {
-        return render(text, config, extensions, notifier, "javafx");
+    public String render(String text, String config, Notifier notifier) {
+        return render(text, config, notifier, "javafx");
     }
 
-    public String render(String text, String config, List<String> extensions, Notifier notifier, String format) {
+    public String render(String text, String config, Notifier notifier, String format) {
         synchronized (Review.class) {
             CollectingLogHandler logHandler = new CollectingLogHandler();
             ClassLoader old = Thread.currentThread().getContextClassLoader();
@@ -322,7 +292,7 @@ public class Review {
                     LocalFileSystem.getInstance().findFileByIoFile(fileBaseDir)
             );
             try {
-                ReviewConverter reviewConverter = initWithExtensions(extensions, format);
+                ReviewConverter reviewConverter = initWithExtensions(format);
                 reviewConverter.registerLogHandler(logHandler);
                 // prependConfig.setConfig(config);
                 try {
@@ -357,59 +327,6 @@ public class Review {
         }
     }
 
-    public void convertTo(File file, String config, List<String> extensions, FileType format) {
-
-        Notifier notifier = this::notifyAlways;
-        synchronized (Review.class) {
-            CollectingLogHandler logHandler = new CollectingLogHandler();
-            ByteArrayOutputStream boasOut = new ByteArrayOutputStream();
-            ByteArrayOutputStream boasErr = new ByteArrayOutputStream();
-            ClassLoader old = Thread.currentThread().getContextClassLoader();
-            Thread.currentThread().setContextClassLoader(ReviewAction.class.getClassLoader());
-            VirtualFile springRestDocsSnippets = findSpringRestDocSnippets(
-                    LocalFileSystem.getInstance().findFileByIoFile(new File(projectBasePath)),
-                    LocalFileSystem.getInstance().findFileByIoFile(fileBaseDir));
-            try {
-                ReviewConverter reviewConverter = initWithExtensions(extensions, format.toString());
-                // prependConfig.setConfig(config);
-                reviewConverter.registerLogHandler(logHandler);
-            } catch (Exception | ServiceConfigurationError ex) {
-                log.warn("unable to render Review document", ex);
-                logHandler.log(new LogRecord(Severity.FATAL, ex.getMessage()));
-                StringBuilder response = new StringBuilder();
-                response.append("unable to render Re:VIEW document");
-                Throwable t = ex;
-                do {
-                    response.append("<p>").append(t.getClass().getCanonicalName()).append(": ").append(t.getMessage());
-                    if (t.getMessage().startsWith("unknown encoding name")) {
-                        response.append("<p>Either your local encoding is not supported by JRuby, or you passed an unrecognized value to the Java property 'file.encoding' either in the IntelliJ options file or via the JAVA_TOOL_OPTION environment variable.");
-                        // String property = SafePropertyAccessor.getProperty("file.encoding", null);
-                        // response.append("<p>encoding passed by system property 'file.encoding': ").append(property);
-                        // response.append("<p>available encodings (excuding aliases): ");
-                        // EncodingDB.getEncodings().forEach(entry -> response.append(entry.getEncoding().getCharsetName()).append(" "));
-                    }
-                    t = t.getCause();
-                } while (t != null);
-                response.append("<p>(the full exception stack trace is available in the IDE's log file. Visit menu item 'Help | Show Log in Explorer' to see the log)");
-                try {
-                    boasErr.write(response.toString().getBytes(StandardCharsets.UTF_8));
-                } catch (IOException e) {
-                    throw new RuntimeException("Unable to write bytes");
-                }
-            } finally {
-                notifier.notify(boasOut, boasErr, logHandler.getLogRecords());
-                Thread.currentThread().setContextClassLoader(old);
-            }
-        }
-    }
-
-    public Map<String, Object> getExportOptions(Map<String, Object> options, FileType fileType) {
-        if (fileType == FileType.HTML) {
-            options.put(Options.HEADER_FOOTER, true);
-        }
-        return options;
-    }
-
     private Map<String, Object> getDefaultOptions(String backend, VirtualFile antoraPartials, String antoraImagesDir, String antoraAttachmentsDir, VirtualFile antoraExamplesDir) {
         AttributesBuilder builder = AttributesBuilder.attributes()
                 .showTitle(true)
@@ -442,21 +359,5 @@ public class Review {
                 .baseDir(fileBaseDir);
 
         return opts.asMap();
-    }
-
-    public enum FileType {
-        PDF("pdf"),
-        HTML("html5");
-
-        private final String formatType;
-
-        FileType(String formatType) {
-            this.formatType = formatType;
-        }
-
-        @Override
-        public String toString() {
-            return formatType;
-        }
     }
 }
