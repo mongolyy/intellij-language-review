@@ -1,4 +1,4 @@
-package ort.reviewPlugin;
+package org.reviewPlugin;
 
 import com.intellij.psi.tree.IElementType;
 import org.reviewPlugin.psi.ReviewTypes;

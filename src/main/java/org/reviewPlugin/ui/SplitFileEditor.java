@@ -39,7 +39,6 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
     private final MyListenersMultimap myListenersGenerator = new MyListenersMultimap();
 
     private boolean myVerticalSplitOption;
-    private boolean myEditorFirst;
     private JBSplitter mySplitter;
 
     public SplitFileEditor(@NotNull E1 mainEditor, @NotNull E2 secondEditor) {
@@ -58,30 +57,18 @@ public abstract class SplitFileEditor<E1 extends FileEditor, E2 extends FileEdit
         ReviewApplicationSettings.SettingsChangedListener settingsChangedListener =
                 settings -> ApplicationManager.getApplication().invokeLater(() -> {
                     triggerSplitOrientationChange(settings.getReviewPreviewSettings().isVerticalSplit());
-                    triggerEditorFirstChange(settings.getReviewPreviewSettings().isEditorFirst());
                 });
 
         ApplicationManager.getApplication().getMessageBus().connect(this)
                 .subscribe(ReviewApplicationSettings.SettingsChangedListener.TOPIC, settingsChangedListener);
     }
 
-    private void triggerEditorFirstChange(boolean isEditorFirst) {
-        if (myEditorFirst == isEditorFirst) {
-            return;
-        }
-
-        myEditorFirst = isEditorFirst;
-
-        mySplitter.swapComponents();
-        myComponent.repaint();
-    }
-
     @NotNull
     private JComponent createComponent() {
-        mySplitter = new JBSplitter(!myVerticalSplitOption, 0.5f, 0.15f, 0.85f);
+        mySplitter = new JBSplitter(myVerticalSplitOption, 0.5f, 0.15f, 0.85f);
         mySplitter.setSplitterProportionKey(MY_PROPORTION_KEY);
-        mySplitter.setFirstComponent(myEditorFirst ? myMainEditor.getComponent() : mySecondEditor.getComponent());
-        mySplitter.setSecondComponent(myEditorFirst ? mySecondEditor.getComponent() : myMainEditor.getComponent());
+        mySplitter.setFirstComponent(myMainEditor.getComponent());
+        mySplitter.setSecondComponent(mySecondEditor.getComponent());
 
         final JPanel result = new JPanel(new BorderLayout());
         result.add(mySplitter, BorderLayout.CENTER);

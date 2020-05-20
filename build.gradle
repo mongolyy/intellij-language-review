@@ -26,4 +26,4 @@ patchPluginXml {
       <em>most HTML tags may be used</em>"""
 }
 
-sourceSets.main.java.srcDirs += 'src/main/gen'
+sourceSets.main.java.srcDirs 'src/main/gen'
